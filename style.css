@@ -65,7 +65,7 @@ body.counting #nav { opacity: 0; pointer-events: none; }
 .fs-btn i { width: 10px; height: 10px; border: 1.5px solid currentColor; border-radius: 1px; }
 
 /* ---------- Countdown ---------- */
-.jam { height: 360vh; }
+.jam { height: 440vh; }
 .count { position: absolute; inset: 0; }
 .panel {
   position: absolute; inset: 0;
@@ -103,9 +103,9 @@ body.counting #nav { opacity: 0; pointer-events: none; }
 .bars i:nth-child(5) { background: var(--cream); }
 
 /* ---------- Szenen ---------- */
-.ship { height: 280vh; }
-.church { height: 300vh; }
-.bang { height: 320vh; }
+.ship { height: 340vh; }
+.church { height: 360vh; }
+.bang { height: 420vh; }
 .spec {
   position: absolute; right: var(--gut); bottom: 9vh; width: min(320px, 30vw);
   font-family: var(--mono); font-size: 12px; opacity: var(--o, 0);

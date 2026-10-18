@@ -6,7 +6,9 @@
   const qs = new URLSearchParams(location.search);
   const SHOT = qs.has('t');            // Standbild für Screenshots: ?t=0&sec=ship&p=0.5, dazu &ago= (ms nach „Bang“)
 
-  const W = 2400, H = 1600;
+  const W = 2400, H = 1600;   // nur das Seitenverhältnis zählt (3:2)
+  // Tablets und Handys: leichtere Bildfolgen (1920 px), sonst geht ihnen bei ~200 großen Bildern der Speicher aus
+  const LIGHT = qs.has('light') || matchMedia('(pointer: coarse)').matches || (navigator.deviceMemory && navigator.deviceMemory <= 4);
   const CLIPS = { c1: 41, c2: 61, c3: 58, c4: 41 };
 
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -39,7 +41,7 @@
     const imgs = Array.from({ length: n }, (_, i) => {
       const img = new Image();
       img.decoding = 'async';
-      img.src = `bilder/${dir}/${String(i).padStart(3, '0')}.webp?v=7`;
+      img.src = `bilder/${dir}/${String(i).padStart(3, '0')}.webp?v=9`;
       return img;
     });
     const ready = Promise.all(imgs.map((img) => (img.complete ? 0 : new Promise((r) => { img.onload = img.onerror = r; }))));
@@ -66,9 +68,10 @@
     };
   }
   const seq = {};
-  for (const [id, n] of Object.entries(CLIPS)) seq[id] = makeSeq($('#' + id), 'seq' + id.slice(1), n);
+  for (const [id, n] of Object.entries(CLIPS)) seq[id] = makeSeq($('#' + id), 'seq' + id.slice(1) + (LIGHT ? '-t' : ''), n);
 
   const prog = (el) => { const r = el.getBoundingClientRect(); const t = r.height - vh; return t > 0 ? clamp(-r.top / t) : 0; };
+  const enter = (el) => clamp((vh - el.getBoundingClientRect().top) / vh);
   const onScreen = (el) => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < vh; };
   const lines = (els, k, st = 0.12) => els.forEach((l, i) => set(l, '--r', E.out3(clamp(k * (1 + st * els.length) - i * st))));
 
@@ -81,8 +84,9 @@
   const T = { t4: { el: $('[data-b="t4"]') } };
   // Schwarzblende je Szene: Karte erscheint auf Schwarz, Szene blendet auf, am Ende wieder ins Schwarz
   function noir(s, p, a, open, close = 1.1) {
-    const cardIn = seg(p, a, a + 0.04), cardOut = seg(p, open - 0.05, open - 0.01);
-    const up = E.inOut(seg(p, open - 0.02, open + 0.08));
+    const cardIn = a === 0 ? seg(enter(s), 0.35, 0.85) : seg(p, a, a + 0.03);
+    const cardOut = seg(p, open - 0.035, open);
+    const up = E.inOut(seg(p, open - 0.01, open + 0.09));
     const down = E.inOut(seg(p, close, close + 0.08));
     set(s, '--ck', E.out3(cardIn) * (1 - cardOut));
     set(s, '--bk', Math.max(1 - up, down));
@@ -97,7 +101,7 @@
     /* ---------- Countdown → Spike ---------- */
     if (onScreen(sec.jam)) {
       const s = sec.jam, p = prog(s);
-      const starts = [-1, 0.07, 0.14, 0.21];
+      const starts = [-1, 0.06, 0.12, 0.18];
       panels.forEach((pn, i) => {
         // „3“ wischt beim Laden herein, die übrigen beim Scrollen – jeweils hart über die vorige Fläche
         const w = i === 0 ? E.out3(clamp((intro - 0.1) / 0.55)) : E.out3(seg(p, starts[i], starts[i] + 0.025));
@@ -106,13 +110,13 @@
         set(pn, '--s', 1.07 - 0.07 * seg(p, from, from + 0.08));
       });
       // nach „Let's jam“ verschwindet die Schrift, auf Schwarz erscheint die Session-Karte
-      const fade = seg(p, 0.28, 0.31);
+      const fade = seg(p, 0.3, 0.33);
       count.style.opacity = (1 - fade).toFixed(3);
       count.style.visibility = fade < 1 ? 'visible' : 'hidden';
-      document.body.classList.toggle('counting', p < 0.3);
-      noir(s, p, 0.3, 0.38, 0.94);
+      document.body.classList.toggle('counting', p < 0.32);
+      noir(s, p, 0.32, 0.44, 0.95);
       set(s, '--cue', 1 - seg(p, 0, 0.04));
-      seq.c1.draw(map(p, [[0.4, 0], [0.9, CLIPS.c1 - 1]]), 1, tall ? 0.42 : 0.5, 0.08);
+      seq.c1.draw(map(p, [[0.46, 0], [0.9, CLIPS.c1 - 1]]), 1, tall ? 0.42 : 0.5, 0.08);
     }
 
     if (!onScreen(sec.jam)) document.body.classList.remove('counting');
@@ -120,35 +124,35 @@
     /* ---------- Faye im Casino ---------- */
     if (onScreen(sec.ship)) {
       const s = sec.ship, p = prog(s);
-      noir(s, p, 0, 0.11, 0.94);
+      noir(s, p, 0, 0.16, 0.95);
       // ruhiges Mischen, dann Wurf und Pistole – der Wurf bekommt den größten Teil des Scrollwegs
-      seq.c2.draw(map(p, [[0.13, 0], [0.38, 30], [0.88, CLIPS.c2 - 1]]), 1.02, tall ? 0.4 : 0.5, 0.2);
+      seq.c2.draw(map(p, [[0.18, 0], [0.4, 30], [0.88, CLIPS.c2 - 1]]), 1.02, tall ? 0.4 : 0.5, 0.2);
     }
 
     /* ---------- Kirche ---------- */
     if (onScreen(sec.church)) {
       const s = sec.church, p = prog(s);
-      noir(s, p, 0, 0.11, 0.94);
-      seq.c3.draw(map(p, [[0.13, 0], [0.9, CLIPS.c3 - 1]]), 1.02, 0.5, 0.45);
+      noir(s, p, 0, 0.16, 0.95);
+      seq.c3.draw(map(p, [[0.18, 0], [0.9, CLIPS.c3 - 1]]), 1.02, 0.5, 0.45);
     }
 
     /* ---------- Bang ---------- */
     if (onScreen(sec.bang)) {
       const s = sec.bang, p = prog(s);
-      noir(s, p, 0, 0.11);
-      seq.c4.draw(map(p, [[0.13, 0], [0.58, CLIPS.c4 - 1]]), 1.02, tall ? 0.47 : 0.5, 0.42);
-      set(T.t4.el, '--o', seg(p, 0.2, 0.24) * (1 - seg(p, 0.56, 0.59)));
-      set(T.t4.el, '--q', seg(p, 0.24, 0.32));
-      const isBang = p >= 0.6;
+      noir(s, p, 0, 0.12);
+      seq.c4.draw(map(p, [[0.14, 0], [0.52, CLIPS.c4 - 1]]), 1.02, tall ? 0.47 : 0.5, 0.42);
+      set(T.t4.el, '--o', seg(p, 0.16, 0.2) * (1 - seg(p, 0.48, 0.51)));
+      set(T.t4.el, '--q', seg(p, 0.19, 0.25));
+      const isBang = p >= 0.53;
       if (isBang && !wasBang) bangAt = now;
       wasBang = isBang;
       const ago = SHOT ? parseFloat(qs.get('ago') || '2000') : now - bangAt;
       set(s, '--bo', isBang ? 1 : 0);
       set(s, '--slam', isBang ? Math.exp(-ago / 140) : 0);
-      set(s, '--end', p >= 0.74 ? 1 : 0);                       // harter Schnitt auf Schwarz
-      const n = Math.round(seg(p, 0.77, 0.91) * seeChars.length);
+      set(s, '--end', p >= 0.7 ? 1 : 0);                       // harter Schnitt auf Schwarz
+      const n = Math.round(seg(p, 0.72, 0.84) * seeChars.length);
       seeChars.forEach((c, i) => { const o = i < n ? '1' : '0'; if (c.style.opacity !== o) c.style.opacity = o; });
-      set(s, '--wt', seg(p, 0.92, 0.97));
+      set(s, '--wt', seg(p, 0.86, 0.9));
     }
   }
 
