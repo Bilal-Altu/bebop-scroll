@@ -72,17 +72,6 @@
   const onScreen = (el) => { const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < vh; };
   const lines = (els, k, st = 0.12) => els.forEach((l, i) => set(l, '--r', E.out3(clamp(k * (1 + st * els.length) - i * st))));
 
-  // Farbbalken geben die Szene frei: abwechselnd nach oben/unten bzw. links/rechts
-  function bars(el, k) {
-    const vert = !el.classList.contains('bars-h');
-    [...el.children].forEach((b, i) => {
-      const d = E.out3(clamp(k * 1.7 - i * 0.16));
-      const dir = i % 2 ? -1 : 1;
-      b.style.transform = vert ? `translate3d(0, ${(dir * d * 101).toFixed(2)}%, 0)` : `translate3d(${(dir * d * 101).toFixed(2)}%, 0, 0)`;
-    });
-    el.style.visibility = k >= 1 ? 'hidden' : 'visible';
-  }
-
   // Schriftzug der Schlusskarte Zeichen für Zeichen
   const seeEl = $('.see');
   const seeText = seeEl.textContent;
@@ -112,10 +101,10 @@
         const from = i === 0 ? 0 : starts[i];
         set(pn, '--s', 1.07 - 0.07 * seg(p, from, from + 0.08));
       });
-      count.style.visibility = p < 0.29 ? 'visible' : 'hidden';
-      const barsEl = $('.bars', s);
-      if (p < 0.29) barsEl.style.visibility = 'hidden';
-      else bars(barsEl, seg(p, 0.29, 0.4));
+      // nach „Let's jam“ blendet das Schwarz weich in die Szene
+      const fade = seg(p, 0.29, 0.38);
+      count.style.opacity = (1 - E.inOut(fade)).toFixed(3);
+      count.style.visibility = fade < 1 ? 'visible' : 'hidden';
       set(s, '--cue', 1 - seg(p, 0, 0.04));
       seq.c1.draw(map(p, [[0.36, 0], [0.92, CLIPS.c1 - 1]]), 1, tall ? 0.42 : 0.5, 0.08);
       set(T.t1.el, '--o', seg(p, 0.44, 0.47));
@@ -126,7 +115,6 @@
     /* ---------- Swordfish II ---------- */
     if (onScreen(sec.ship)) {
       const s = sec.ship, p = prog(s);
-      bars($('.bars', s), seg(p, 0, 0.12));
       const f = map(p, [[0.1, 0], [0.42, 28], [0.86, CLIPS.c2 - 1]]);
       seq.c2.draw(f, 1.02, tall ? mix(0.22, 0.6, seg(f, 0, 50)) : 0.5, 0.5);
       set(s, '--flash', 0.85 * Math.max(0, 1 - Math.abs(f - 50.5) / 2.5));
@@ -138,7 +126,6 @@
     /* ---------- Kirche ---------- */
     if (onScreen(sec.church)) {
       const s = sec.church, p = prog(s);
-      bars($('.bars', s), seg(p, 0, 0.12));
       seq.c3.draw(map(p, [[0.1, 0], [0.88, CLIPS.c3 - 1]]), 1.02, 0.5, 0.45);
       set(T.t3.el, '--o', seg(p, 0.12, 0.16));
       lines(T.t3.lines, seg(p, 0.5, 0.64));
@@ -147,7 +134,6 @@
     /* ---------- Bang ---------- */
     if (onScreen(sec.bang)) {
       const s = sec.bang, p = prog(s);
-      bars($('.bars', s), seg(p, 0, 0.1));
       seq.c4.draw(map(p, [[0.08, 0], [0.55, CLIPS.c4 - 1]]), 1.02, tall ? 0.47 : 0.5, 0.42);
       set(T.t4.el, '--o', seg(p, 0.1, 0.13) * (1 - seg(p, 0.52, 0.55)));
       set(T.t4.el, '--q', seg(p, 0.18, 0.28));
