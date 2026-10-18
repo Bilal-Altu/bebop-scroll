@@ -78,11 +78,15 @@
   seeEl.textContent = '';
   const seeChars = [...seeText].map((ch) => { const s = document.createElement('span'); s.textContent = ch; s.style.opacity = '0'; seeEl.appendChild(s); return s; });
 
-  const T = {
-    t1: { el: $('[data-b="t1"]') }, t2: { el: $('[data-b="t2"]') }, t3: { el: $('[data-b="t3"]') }, t4: { el: $('[data-b="t4"]') },
-    spec: { el: $('[data-b="spec"]') },
-  };
-  for (const k in T) T[k].lines = $$('.ln', T[k].el);
+  const T = { t4: { el: $('[data-b="t4"]') } };
+  // Schwarzblende je Szene: Karte erscheint auf Schwarz, Szene blendet auf, am Ende wieder ins Schwarz
+  function noir(s, p, a, open, close = 1.1) {
+    const cardIn = seg(p, a, a + 0.04), cardOut = seg(p, open - 0.05, open - 0.01);
+    const up = E.inOut(seg(p, open - 0.02, open + 0.08));
+    const down = E.inOut(seg(p, close, close + 0.08));
+    set(s, '--ck', E.out3(cardIn) * (1 - cardOut));
+    set(s, '--bk', Math.max(1 - up, down));
+  }
   const panels = $$('.count .panel');
   const count = $('.count');
 
@@ -101,50 +105,46 @@
         const from = i === 0 ? 0 : starts[i];
         set(pn, '--s', 1.07 - 0.07 * seg(p, from, from + 0.08));
       });
-      // nach „Let's jam“ blendet das Schwarz weich in die Szene
-      const fade = seg(p, 0.29, 0.38);
-      count.style.opacity = (1 - E.inOut(fade)).toFixed(3);
+      // nach „Let's jam“ verschwindet die Schrift, auf Schwarz erscheint die Session-Karte
+      const fade = seg(p, 0.28, 0.31);
+      count.style.opacity = (1 - fade).toFixed(3);
       count.style.visibility = fade < 1 ? 'visible' : 'hidden';
+      noir(s, p, 0.3, 0.38, 0.94);
       set(s, '--cue', 1 - seg(p, 0, 0.04));
-      seq.c1.draw(map(p, [[0.36, 0], [0.92, CLIPS.c1 - 1]]), 1, tall ? 0.42 : 0.5, 0.08);
-      set(T.t1.el, '--o', seg(p, 0.44, 0.47));
-      lines(T.t1.lines, seg(p, 0.44, 0.56));
-      set(T.t1.el, '--q', seg(p, 0.62, 0.7));
+      seq.c1.draw(map(p, [[0.4, 0], [0.9, CLIPS.c1 - 1]]), 1, tall ? 0.42 : 0.5, 0.08);
     }
 
     /* ---------- Swordfish II ---------- */
     if (onScreen(sec.ship)) {
       const s = sec.ship, p = prog(s);
-      const f = map(p, [[0.1, 0], [0.42, 28], [0.86, CLIPS.c2 - 1]]);
+      noir(s, p, 0, 0.11, 0.94);
+      const f = map(p, [[0.13, 0], [0.48, 28], [0.88, CLIPS.c2 - 1]]);
       seq.c2.draw(f, 1.02, tall ? mix(0.22, 0.6, seg(f, 0, 50)) : 0.5, 0.5);
       set(s, '--flash', 0.85 * Math.max(0, 1 - Math.abs(f - 50.5) / 2.5));
-      set(T.t2.el, '--o', seg(p, 0.14, 0.18));
-      lines(T.t2.lines, seg(p, 0.14, 0.26));
-      set(T.spec.el, '--o', seg(p, 0.2, 0.28));
     }
 
     /* ---------- Kirche ---------- */
     if (onScreen(sec.church)) {
       const s = sec.church, p = prog(s);
-      seq.c3.draw(map(p, [[0.1, 0], [0.88, CLIPS.c3 - 1]]), 1.02, 0.5, 0.45);
-      set(T.t3.el, '--o', seg(p, 0.12, 0.16));
-      lines(T.t3.lines, seg(p, 0.5, 0.64));
+      noir(s, p, 0, 0.11, 0.94);
+      seq.c3.draw(map(p, [[0.13, 0], [0.9, CLIPS.c3 - 1]]), 1.02, 0.5, 0.45);
     }
 
     /* ---------- Bang ---------- */
     if (onScreen(sec.bang)) {
       const s = sec.bang, p = prog(s);
-      seq.c4.draw(map(p, [[0.08, 0], [0.55, CLIPS.c4 - 1]]), 1.02, tall ? 0.47 : 0.5, 0.42);
-      set(T.t4.el, '--o', seg(p, 0.1, 0.13) * (1 - seg(p, 0.52, 0.55)));
-      set(T.t4.el, '--q', seg(p, 0.18, 0.28));
-      const isBang = p >= 0.57;
+      noir(s, p, 0, 0.11);
+      seq.c4.draw(map(p, [[0.13, 0], [0.58, CLIPS.c4 - 1]]), 1.02, tall ? 0.47 : 0.5, 0.42);
+      set(T.t4.el, '--o', seg(p, 0.2, 0.24) * (1 - seg(p, 0.56, 0.59)));
+      set(T.t4.el, '--q', seg(p, 0.24, 0.32));
+      const isBang = p >= 0.6;
       if (isBang && !wasBang) bangAt = now;
       wasBang = isBang;
       const ago = SHOT ? parseFloat(qs.get('ago') || '2000') : now - bangAt;
       set(s, '--bo', isBang ? 1 : 0);
       set(s, '--slam', isBang ? Math.exp(-ago / 140) : 0);
-      set(s, '--end', p >= 0.72 ? 1 : 0);                       // harter Schnitt auf Schwarz
-      const n = Math.round(seg(p, 0.75, 0.9) * seeChars.length);
+      set(s, '--end', p >= 0.74 ? 1 : 0);                       // harter Schnitt auf Schwarz
+      const n = Math.round(seg(p, 0.77, 0.91) * seeChars.length);
       seeChars.forEach((c, i) => { const o = i < n ? '1' : '0'; if (c.style.opacity !== o) c.style.opacity = o; });
       set(s, '--wt', seg(p, 0.92, 0.97));
     }

@@ -33,7 +33,7 @@ a { color: inherit; }
 /* Episodenkarte wie in der Serie */
 .card {
   display: inline-flex; align-items: baseline; gap: 14px;
-  font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  font-family: var(--mono); font-size: min(1.2vw, 2vh); letter-spacing: .14em; text-transform: uppercase;
   color: var(--muted); margin-bottom: 1.6vh;
 }
 .card b { font-weight: 700; color: var(--cream); letter-spacing: .08em; }
@@ -44,7 +44,7 @@ a { color: inherit; }
 .t-right { right: var(--gut); text-align: right; }
 .t-right .card { justify-content: flex-end; }
 .title .big { font-size: min(11vw, 20vh); }
-.quote { margin-top: 2vh; font-family: var(--mono); font-size: 13px; color: var(--mustard); opacity: var(--q, 0); }
+.quote { margin-top: 2vh; max-width: 46vw; font-family: var(--mono); font-weight: 700; font-size: min(1.5vw, 2.6vh); line-height: 1.45; color: var(--mustard); opacity: var(--q, 0); }
 
 /* ---------- Navigation ---------- */
 #nav {
@@ -127,7 +127,7 @@ a { color: inherit; }
   opacity: var(--end, 0);
 }
 .see { font-family: Inter, sans-serif; font-weight: 600; font-size: min(4.6vw, 7vh); letter-spacing: .06em; text-transform: uppercase; color: #fff; white-space: pre; }
-.weight { margin-top: 2vh; font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); opacity: var(--wt, 0); }
+.weight { margin-top: 2vh; font-family: var(--mono); font-size: min(1.4vw, 2.4vh); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); opacity: var(--wt, 0); }
 
 /* ---------- Nächste Folge ---------- */
 .next { padding: 22vh var(--gut) 16vh; border-top: 1px solid var(--line); }
@@ -166,3 +166,16 @@ a { color: inherit; }
   .foot-row { grid-template-columns: 1fr; }
   .go { font-size: 10vw; }
 }
+
+/* ---------- Film-Noir: Schwarzblende mit Session-Karte, Filmkorn ---------- */
+.black {
+  position: absolute; inset: 0; background: #000; pointer-events: none;
+  display: flex; align-items: center; justify-content: center;
+  opacity: var(--bk, 1);
+}
+.sess { text-align: center; opacity: var(--ck, 0); transform: translate3d(0, calc((1 - var(--ck, 0)) * 8px), 0); }
+.sess-n { font-family: var(--mono); font-weight: 700; font-size: min(1.6vw, 2.6vh); letter-spacing: .4em; text-transform: uppercase; color: var(--muted); margin-bottom: 2.2vh; }
+.sess-t { font-family: var(--disp); font-weight: 400; font-size: min(11vw, 19vh); line-height: .9; letter-spacing: .02em; text-transform: uppercase; color: #fff; }
+.t4b { opacity: 1; }
+.pin::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 120% 95% at 50% 45%, transparent 55%, rgba(0, 0, 0, .5) 100%); }
+@media (max-aspect-ratio: 1/1) { .sess-t { font-size: 15vw; padding: 0 6vw; } .sess-n { font-size: 3.2vw; } }
