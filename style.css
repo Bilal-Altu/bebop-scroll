@@ -52,8 +52,10 @@ a { color: inherit; }
   display: flex; align-items: center; gap: 24px;
   padding: 22px var(--gut);
   font-size: 10.5px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase;
-  color: var(--cream); mix-blend-mode: difference;
+  color: var(--cream); text-shadow: 0 1px 12px rgba(0, 0, 0, .35);
+  transition: opacity .35s;
 }
+body.counting #nav { opacity: 0; pointer-events: none; }
 #nav a { text-decoration: none; }
 .mark { font-family: Arial, Helvetica, sans-serif; font-weight: 700; font-size: 18px; letter-spacing: -.056em; text-transform: none; }
 .nav-mid { font-family: var(--mono); font-weight: 400; opacity: .7; }

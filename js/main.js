@@ -109,10 +109,13 @@
       const fade = seg(p, 0.28, 0.31);
       count.style.opacity = (1 - fade).toFixed(3);
       count.style.visibility = fade < 1 ? 'visible' : 'hidden';
+      document.body.classList.toggle('counting', p < 0.3);
       noir(s, p, 0.3, 0.38, 0.94);
       set(s, '--cue', 1 - seg(p, 0, 0.04));
       seq.c1.draw(map(p, [[0.4, 0], [0.9, CLIPS.c1 - 1]]), 1, tall ? 0.42 : 0.5, 0.08);
     }
+
+    if (!onScreen(sec.jam)) document.body.classList.remove('counting');
 
     /* ---------- Faye im Casino ---------- */
     if (onScreen(sec.ship)) {
