@@ -6,7 +6,7 @@
   const qs = new URLSearchParams(location.search);
   const SHOT = qs.has('t');            // Standbild für Screenshots: ?t=0&sec=ship&p=0.5, dazu &ago= (ms nach „Bang“)
 
-  const W = 1600, H = 1066;
+  const W = 2400, H = 1600;
   const CLIPS = { c1: 41, c2: 61, c3: 58, c4: 41 };
 
   const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
@@ -116,7 +116,7 @@
       if (p < 0.29) barsEl.style.visibility = 'hidden';
       else bars(barsEl, seg(p, 0.29, 0.4));
       set(s, '--cue', 1 - seg(p, 0, 0.04));
-      seq.c1.draw(map(p, [[0.36, 0], [0.92, CLIPS.c1 - 1]]), 1.02, tall ? 0.42 : 0.5, 0.5);
+      seq.c1.draw(map(p, [[0.36, 0], [0.92, CLIPS.c1 - 1]]), 1, tall ? 0.42 : 0.5, 0.08);
       set(T.t1.el, '--o', seg(p, 0.44, 0.47));
       lines(T.t1.lines, seg(p, 0.44, 0.56));
       set(T.t1.el, '--q', seg(p, 0.62, 0.7));
