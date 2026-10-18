@@ -39,7 +39,7 @@
     const imgs = Array.from({ length: n }, (_, i) => {
       const img = new Image();
       img.decoding = 'async';
-      img.src = `bilder/${dir}/${String(i).padStart(3, '0')}.webp`;
+      img.src = `bilder/${dir}/${String(i).padStart(3, '0')}.webp?v=3`;
       return img;
     });
     const ready = Promise.all(imgs.map((img) => (img.complete ? 0 : new Promise((r) => { img.onload = img.onerror = r; }))));
@@ -60,6 +60,7 @@
         key = nk;
         const d = cvs.width / vw;
         g.setTransform(d, 0, 0, d, 0, 0);
+        g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
         g.drawImage(img, x, y, w, h);
       },
     };
