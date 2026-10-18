@@ -1,6 +1,6 @@
 // Cowboy Bebop – Scroll-Hommage Nº 03, gebaut wie der Vorspann der Serie.
 // „3 · 2 · 1 · Let's jam“ in harten Farbflächen → Farbbalken geben Spike frei (Kling-Clip) →
-// Swordfish II taucht ins Gate → Fall durchs Kirchenfenster → „Bang.“ → „See you space cowboy…“.
+// Faye schnippt im Casino eine Karte auf die Kamera → Fall durchs Kirchenfenster → „Bang.“ → „See you space cowboy…“.
 // Clips liegen als Einzelbilder vor (bilder/seq1–4) und werden per Scrollposition auf Canvas gezeichnet.
 (() => {
   const qs = new URLSearchParams(location.search);
@@ -39,7 +39,7 @@
     const imgs = Array.from({ length: n }, (_, i) => {
       const img = new Image();
       img.decoding = 'async';
-      img.src = `bilder/${dir}/${String(i).padStart(3, '0')}.webp?v=3`;
+      img.src = `bilder/${dir}/${String(i).padStart(3, '0')}.webp?v=7`;
       return img;
     });
     const ready = Promise.all(imgs.map((img) => (img.complete ? 0 : new Promise((r) => { img.onload = img.onerror = r; }))));
@@ -114,13 +114,12 @@
       seq.c1.draw(map(p, [[0.4, 0], [0.9, CLIPS.c1 - 1]]), 1, tall ? 0.42 : 0.5, 0.08);
     }
 
-    /* ---------- Swordfish II ---------- */
+    /* ---------- Faye im Casino ---------- */
     if (onScreen(sec.ship)) {
       const s = sec.ship, p = prog(s);
       noir(s, p, 0, 0.11, 0.94);
-      const f = map(p, [[0.13, 0], [0.48, 28], [0.88, CLIPS.c2 - 1]]);
-      seq.c2.draw(f, 1.02, tall ? mix(0.22, 0.6, seg(f, 0, 50)) : 0.5, 0.5);
-      set(s, '--flash', 0.85 * Math.max(0, 1 - Math.abs(f - 50.5) / 2.5));
+      // ruhiges Mischen, dann Wurf und Pistole – der Wurf bekommt den größten Teil des Scrollwegs
+      seq.c2.draw(map(p, [[0.13, 0], [0.38, 30], [0.88, CLIPS.c2 - 1]]), 1.02, tall ? 0.4 : 0.5, 0.2);
     }
 
     /* ---------- Kirche ---------- */
